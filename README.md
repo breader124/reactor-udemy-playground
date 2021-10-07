@@ -1,6 +1,3 @@
-# reactive-programming-using-reactor
-This project has the necessary code for the reactive programming course using Project Reactor
-
-## Swagger-UI
-
--   Check the following [link](http://localhost:8080/movies/swagger-ui.html) for swagger.
+This repository is just a sandbox for playing with Project Reactor. It contains code coming from 2 sources:
+- Reactive Programming in Modern Java using Project Reactor Udemy course made by Pragmatic Code School
+- just me :D 

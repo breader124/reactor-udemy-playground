@@ -18,6 +18,17 @@ public class FluxAndMonoGeneratorServiceTest {
     }
 
     @Test
+    public void testNamesFluxNoMoreThan3LettersAndUpperCase() {
+        // when
+        var namesFlux = FluxAndMonoGeneratorService.namesFluxNoMoreThanNLetters(3);
+
+        // then
+        StepVerifier.create(namesFlux)
+                .expectNext("JAN")
+                .verifyComplete();
+    }
+
+    @Test
     public void nameMono() {
         // when
         var nameMono = FluxAndMonoGeneratorService.nameMono();
@@ -25,6 +36,16 @@ public class FluxAndMonoGeneratorServiceTest {
         // then
         StepVerifier.create(nameMono)
                 .expectNext("Lynx")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNameMonoNoMoreThan3LettersAndLowerCase() {
+        // when
+        var nameMono = FluxAndMonoGeneratorService.nameMonoNoMoreThanNLetters(3);
+
+        // then
+        StepVerifier.create(nameMono)
                 .verifyComplete();
     }
 

@@ -29,6 +29,28 @@ public class FluxAndMonoGeneratorServiceTest {
     }
 
     @Test
+    public void testNamesFluxDefaultIfEmpty() {
+        // when
+        var namesFlux = FluxAndMonoGeneratorService.namesFluxDefaultIfEmpty(2);
+
+        // then
+        StepVerifier.create(namesFlux)
+                .expectNext("BOGDAN")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testNamesFluxSwitchIfEmpty() {
+        // when
+        var namesFlux = FluxAndMonoGeneratorService.namesFluxSwitchIfEmpty(2);
+
+        // then
+        StepVerifier.create(namesFlux)
+                .expectNext("BOGDAN AND ADRIAN")
+                .verifyComplete();
+    }
+
+    @Test
     public void nameMono() {
         // when
         var nameMono = FluxAndMonoGeneratorService.nameMono();

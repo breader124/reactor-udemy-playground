@@ -1,11 +1,13 @@
 package playground.service;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
+@Slf4j
 public class FluxAndMonoGeneratorService {
 
     public static Flux<String> namesFlux() {
@@ -66,6 +68,39 @@ public class FluxAndMonoGeneratorService {
         return firstFlux.zipWith(secondFlux, Integer::sum);
     }
 
+    public static Flux<String> exploreOnErrorResume() {
+        return Flux.just("Jacek", "Jan", "Adrian", "Agata")
+                .map(s -> {
+                    if (s.length() <= 3) {
+                        throw new RuntimeException();
+                    }
+                    return s;
+                })
+                .onErrorResume((exc) -> Flux.just("Agatha", "Hadrian"));
+    }
+
+    public static Flux<String> exploreOnErrorReturn() {
+        return Flux.just("Jacek", "Jan", "Adrian", "Agata")
+                .map(s -> {
+                    if (s.length() <= 3) {
+                        throw new RuntimeException();
+                    }
+                    return s;
+                })
+                .onErrorReturn("Bradley");
+    }
+
+    public static Flux<String> exploreOnErrorContinue() {
+        return Flux.just("Jacek", "Jan", "Adrian", "Agata")
+                .map(s -> {
+                    if (s.length() <= 3) {
+                        throw new RuntimeException();
+                    }
+                    return s;
+                })
+                .onErrorContinue((exc, value) -> log.info("{} has been filtered out. Please do not resist", value));
+    }
+
     public static Mono<String> nameMono() {
         return Mono.just("Lynx").log();
     }
@@ -95,6 +130,7 @@ public class FluxAndMonoGeneratorService {
     public static Flux<String> exploreConcatWithMono() {
         var firstMono = Mono.just("A");
         var secondMono = Mono.just("B");
+
         return firstMono.concatWith(secondMono);
     }
 
@@ -102,6 +138,20 @@ public class FluxAndMonoGeneratorService {
         var firstMono = Mono.just(11);
         var secondMono = Mono.just(2);
         return firstMono.zipWith(secondMono, Integer::divideUnsigned);
+    }
+
+    public static Mono<String> exploreMonoOnErrorContinue(String input) {
+        return Mono.just(input)
+                .map(s -> {
+                    if ("abc".equals(input)) {
+                        throw new RuntimeException("Input is different than 'abc'");
+                    }
+                    return s;
+                })
+                .onErrorContinue((exc, inp) -> {
+                    log.error("Following exception occurred", exc);
+                    log.info("Following input has been passed: {}", inp);
+                });
     }
 
     public static void main(String[] args) {

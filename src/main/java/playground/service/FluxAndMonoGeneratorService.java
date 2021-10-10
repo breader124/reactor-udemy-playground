@@ -1,4 +1,4 @@
-package com.learnreactiveprogramming.service;
+package playground.service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

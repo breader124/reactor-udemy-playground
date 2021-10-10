@@ -51,6 +51,28 @@ public class FluxAndMonoGeneratorServiceTest {
     }
 
     @Test
+    public void testExploreFluxConcatWith() {
+        // when
+        var concatenatedFlux = FluxAndMonoGeneratorService.exploreConcatWith();
+
+        // then
+        StepVerifier.create(concatenatedFlux)
+                .expectNext("A", "B", "C", "D", "E", "F")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testZipWith() {
+        // when
+        var zippedFlux = FluxAndMonoGeneratorService.exploreZipWith();
+
+        // then
+        StepVerifier.create(zippedFlux)
+                .expectNext(3, 5)
+                .verifyComplete();
+    }
+
+    @Test
     public void nameMono() {
         // when
         var nameMono = FluxAndMonoGeneratorService.nameMono();
@@ -68,6 +90,28 @@ public class FluxAndMonoGeneratorServiceTest {
 
         // then
         StepVerifier.create(nameMono)
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExploreMonoConcatWith() {
+        // when
+        var concatenatedMonos = FluxAndMonoGeneratorService.exploreConcatWithMono();
+
+        // then
+        StepVerifier.create(concatenatedMonos)
+                .expectNext("A", "B")
+                .verifyComplete();
+    }
+
+    @Test
+    public void testMonoZipWith() {
+        // when
+        var zippedMonos = FluxAndMonoGeneratorService.exploreMonoZipWith();
+
+        // then
+        StepVerifier.create(zippedMonos)
+                .expectNext(5)
                 .verifyComplete();
     }
 

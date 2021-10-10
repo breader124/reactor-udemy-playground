@@ -4,6 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class FluxAndMonoGeneratorService {
 
@@ -51,6 +52,20 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
+    public static Flux<String> exploreConcatWith() {
+        var firstFlux = Flux.just("A", "B", "C");
+        var secondFlux = Flux.just("D", "E", "F");
+        return firstFlux.concatWith(secondFlux);
+    }
+
+    public static Flux<Integer> exploreZipWith() {
+        var firstStream = IntStream.range(0, 2);
+        var firstFlux = Flux.fromStream(firstStream.boxed());
+        var secondStream = IntStream.range(3, 5);
+        var secondFlux = Flux.fromStream(secondStream.boxed());
+        return firstFlux.zipWith(secondFlux, Integer::sum);
+    }
+
     public static Mono<String> nameMono() {
         return Mono.just("Lynx").log();
     }
@@ -60,6 +75,33 @@ public class FluxAndMonoGeneratorService {
                 .filter(s -> s.length() <= maxLen)
                 .map(String::toLowerCase)
                 .log();
+    }
+
+    public static Mono<String> namesMonoMapFilter(int stringLength) {
+        return Mono.just("Hadrian")
+                .filter(s -> s.length() < stringLength)
+                .defaultIfEmpty("I'm gonna show you default value")
+                .log();
+    }
+
+    public static Mono<String> namesMonoMapFilterSwitchIfEmpty(int stringLength) {
+        var alternativeMono = Mono.just("I'm gonna show you default value");
+        return Mono.just("Hadrian")
+                .filter(s -> s.length() < stringLength)
+                .switchIfEmpty(alternativeMono)
+                .log();
+    }
+
+    public static Flux<String> exploreConcatWithMono() {
+        var firstMono = Mono.just("A");
+        var secondMono = Mono.just("B");
+        return firstMono.concatWith(secondMono);
+    }
+
+    public static Mono<Integer> exploreMonoZipWith() {
+        var firstMono = Mono.just(11);
+        var secondMono = Mono.just(2);
+        return firstMono.zipWith(secondMono, Integer::divideUnsigned);
     }
 
     public static void main(String[] args) {

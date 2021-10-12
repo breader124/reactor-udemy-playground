@@ -1,20 +1,21 @@
 package playground.service;
 
 import org.junit.jupiter.api.Test;
-import playground.service.FluxAndMonoGeneratorService;
 import reactor.test.StepVerifier;
 
 
 public class FluxAndMonoSchedulersServiceTest {
 
+    private final FluxAndMonoSchedulersService service = new FluxAndMonoSchedulersService();
+
     @Test
-    private void namesFlux() {
+    public void explorePublishOn() {
         // when
-        var namesFlux = FluxAndMonoGeneratorService.namesFlux();
+        var flux = service.explorePublishOn();
 
         // then
-        StepVerifier.create(namesFlux)
-                .expectNext("Jacek", "Jan", "Adrian", "Agata")
+        StepVerifier.create(flux)
+                .expectNextCount(6)
                 .verifyComplete();
     }
 

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class MovieService {
 
     private MovieInfoService movieInfoService;
     private ReviewService reviewService;
+    private RevenueService revenueService;
 
     public Flux<Movie> getAllMovies() {
         var movieInfoFlux = movieInfoService.retrieveMoviesFlux();
@@ -38,6 +40,26 @@ public class MovieService {
         // of transformed Flux must appear first and thus async computations are ruined
         var reviewsMono = reviewService.retrieveReviewsFlux(movieId).collectList();
         return movieInfoMono.zipWith(reviewsMono, Movie::new);
+    }
+
+    public Mono<Movie> getMovieWithRevenueWithById(int movieId) {
+        var movieInfoMono = movieInfoService.retrieveMovieInfoMonoUsingId(movieId);
+        // once again, line below needs to be annotated as dangerous, because it forces main thread to wait to
+        // all events from Flux to appear, to be then converted to Mono of List, after all it's requirement
+        // to zip with complete list, so there's no make any actions to improve performance in such case
+        var reviewsMono = reviewService.retrieveReviewsFlux(movieId).collectList();
+        var revenueMono = Mono
+                .fromCallable(() -> revenueService.getRevenue((long) movieId))
+                .subscribeOn(Schedulers.parallel());
+        // subscribeOn above has been used to make computations parallel, I don't want main thread to wait for
+        // I/O operations to complete
+
+        return movieInfoMono
+                .zipWith(reviewsMono, Movie::new)
+                .zipWith(revenueMono, (movie, revenue) -> {
+                    movie.setRevenue(revenue);
+                    return movie;
+                });
     }
 
     public Mono<Movie> getMovieByIdUsingFlatMap(int movieId) {

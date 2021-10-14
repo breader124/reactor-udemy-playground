@@ -21,8 +21,8 @@ public class MovieService {
 
     public Flux<Movie> getAllMovies() {
         var movieInfoFlux = movieInfoService.retrieveMoviesFlux();
-        // flatMap has been used here because we're unsure how much time computation inside can take, but wouldn't
-        // like to block execution by forcing sync execution
+        // flatMap has been used here because we're unsure how much time computation inside can take, but after all
+        // would like them to happen in parallel to avoid wasting time
         return movieInfoFlux
                 .flatMap(movieInfo -> {
                     Mono<List<Review>> reviews = reviewService.retrieveReviewsFlux(movieInfo.getMovieInfoId()).collectList();
@@ -46,12 +46,12 @@ public class MovieService {
         var movieInfoMono = movieInfoService.retrieveMovieInfoMonoUsingId(movieId);
         // once again, line below needs to be annotated as dangerous, because it forces main thread to wait to
         // all events from Flux to appear, to be then converted to Mono of List, after all it's requirement
-        // to zip with complete list, so there's no make any actions to improve performance in such case
+        // to zip with complete list, so there's no need to take any actions to improve performance in such case
         var reviewsMono = reviewService.retrieveReviewsFlux(movieId).collectList();
         var revenueMono = Mono
                 .fromCallable(() -> revenueService.getRevenue((long) movieId))
                 .subscribeOn(Schedulers.parallel());
-        // subscribeOn above has been used to make computations parallel, I don't want main thread to wait for
+        // subscribeOn above has been used to move execution to another thread, I don't want main thread to wait for
         // I/O operations to complete
 
         return movieInfoMono

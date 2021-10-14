@@ -19,4 +19,37 @@ public class FluxAndMonoSchedulersServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void exploreParallelWithRunOn() {
+        // when
+        var flux = service.exploreParallelWithRunOn();
+
+        // then
+        StepVerifier.create(flux)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
+
+    @Test
+    public void exploreParallelWithFlatMap() {
+        // when
+        var flux = service.exploreParallelWithRunOn();
+
+        // then
+        StepVerifier.create(flux)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
+
+    @Test
+    public void exploreParallelWithFlatMapSequential() {
+        // when
+        var flux = service.exploreParallelWithRunOn();
+
+        // then
+        StepVerifier.create(flux)
+                .expectNext("alex", "ben", "chloe")
+                .verifyComplete();
+    }
+
 }

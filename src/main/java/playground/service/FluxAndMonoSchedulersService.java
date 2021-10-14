@@ -2,6 +2,7 @@ package playground.service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -25,6 +26,40 @@ public class FluxAndMonoSchedulersService {
                 .log();
 
         return namesFlux.mergeWith(namesFlux1);
+    }
+
+    public ParallelFlux<String> exploreParallelWithRunOn() {
+        return Flux.fromIterable(namesList)
+                .parallel()
+                .runOn(Schedulers.parallel())
+                .map(this::upperCase)
+                .log();
+    }
+
+    public Flux<String> exploreParallelWithFlatMap() {
+        return Flux.fromIterable(namesList)
+                .flatMap((name) -> Mono
+                        .just(name)
+                        .map(this::upperCase)
+//                      line below is not required in current case, it's there only as a good practice and reminder
+//                      that it should be present whenever we don't want to block execution of the thread, which
+//                      started execution of stream processing, e.g. 'main' one
+                        .subscribeOn(Schedulers.parallel())
+                )
+                .log();
+    }
+
+    public Flux<String> exploreParallelWithFlatMapSequential() {
+        return Flux.fromIterable(namesList)
+                .flatMapSequential((name) -> Mono
+                        .just(name)
+                        .map(this::upperCase)
+//                      line below is not required in current case, it's there only as a good practice and reminder
+//                      that it should be present whenever we don't want to block execution of the thread, which
+//                      started execution of stream processing, e.g. 'main' one
+                        .subscribeOn(Schedulers.parallel())
+                )
+                .log();
     }
 
     private String upperCase(String name) {

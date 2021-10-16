@@ -2,6 +2,8 @@ package com.learnreactiveprogramming;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+import reactor.test.scheduler.VirtualTimeScheduler;
 
 import java.time.Duration;
 
@@ -32,6 +34,22 @@ public class ColdAndHotPublisherTest {
         sub1.dispose();
         sub2.dispose();
         delay(3000);
+    }
+
+    @Test
+    public void testWithVirtualTimeScheduler() {
+        VirtualTimeScheduler.getOrSet();
+
+        var flux = Flux
+                .range(1, 100)
+                .delayElements(Duration.ofSeconds(1));
+
+        StepVerifier.withVirtualTime(() -> flux)
+                // we want to wait 100 virtual seconds
+                .thenAwait(Duration.ofSeconds(100))
+                // and after 100 seconds, next 100 elements should be published and waiting to be counted
+                .expectNextCount(100)
+                .verifyComplete();
     }
 
 }
